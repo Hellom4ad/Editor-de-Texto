@@ -9,7 +9,6 @@ const app = Vue.createApp({
     return {
       notes: [],
       editingNoteId: null,
-      isDark: false,
       
       // Estado para el formulario (reemplaza a document.getElementById('...').value)
       formTitle: '',
@@ -112,7 +111,6 @@ const app = Vue.createApp({
   // Reemplaza a 'DOMContentLoaded'
   mounted() {
     // Esto se ejecuta cuando la app Vue está lista.
-    this.applyStoredTheme();
     this.notes = this.loadNotesFromLocalStorage();
     // ¡No se necesita 'renderNotes()'!
     
