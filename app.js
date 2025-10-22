@@ -3,14 +3,14 @@
 // 1. CREAMOS LA APLICACIÓN VUE
 const app = Vue.createApp({
   
-  // Reemplaza tus variables globales (let notes = [], let editingNoteId = null)
+  // Reemplaza tus variables globales (let notes = [])
   data() {
     return {
       notes: [],
     }
   },
 
-  // Reemplaza tus funciones globales (saveNote(), deleteNote(), etc.)
+  // Reemplaza tus funciones globales .)
   methods: {
     // --- Lógica de Notas ---
     
@@ -76,13 +76,6 @@ const app = Vue.createApp({
     this.notes = this.loadNotesFromLocalStorage();
     // ¡No se necesita 'renderNotes()'!
     
-    // Asignamos los eventos del diálogo que no son de Vue
-    const dialog = document.getElementById('noteDialog');
-    dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) {
-        this.closeNoteDialog();
-      }
-    });
   }
 
 });
@@ -310,13 +303,12 @@ app.component('note-dialog', {
     // Guardamos el elemento <dialog> en nuestro 'data' para poder usar .showModal() y .close()
     // this.$el se refiere al elemento raíz del 'template' (el <dialog>)
     this.dialogElement = this.$el;
-
     // Añadimos el listener para cerrar al hacer clic fuera (backdrop)
     this.dialogElement.addEventListener('click', (event) => {
       if (event.target === this.dialogElement) {
-        this.close();
+        this.close(); // Llama al método 'close' de ESTE componente
       }
-    });
+      });
   }
 });
 
