@@ -106,17 +106,7 @@ const app = Vue.createApp({
 
     // --- Lógica del Tema (Oscuro/Claro) ---
 
-    toggleTheme() {
-      // Solo cambiamos el estado. El HTML reaccionará.
-      this.isDark = !this.isDark;
-      localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
-    },
-
-    applyStoredTheme() {
-      // Solo establecemos el estado inicial.
-      this.isDark = localStorage.getItem('theme') === 'dark';
-    }
-  },
+   },
 
   // 4. LIFECYCLE HOOKS (ENGANCHES DE CICLO DE VIDA)
   // Reemplaza a 'DOMContentLoaded'
@@ -140,3 +130,34 @@ const app = Vue.createApp({
 // 5. MONTAMOS LA APLICACIÓN
 // Le decimos a Vue que controle todo dentro del elemento con id="app"
 app.mount('#app');
+
+document.addEventListener('DOMContentLoaded', () => {
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const appElement = document.getElementById('app'); // El div raíz
+
+  // Función para aplicar el tema (al cargar)
+  function applyInitialTheme() {
+    const isDark = localStorage.getItem('theme') === 'dark';
+    // Usamos toggle(clase, fuerza) para añadir o quitar la clase
+    appElement.classList.toggle('dark', isDark);
+    themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
+  }
+
+  // Función para cambiar el tema (al hacer clic)
+  function toggleThemeVanilla() {
+    // Alterna la clase y nos devuelve true si la clase 'dark' fue añadida
+    const isDark = appElement.classList.toggle('dark');
+    
+    // Guarda la preferencia
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    
+    // Actualiza el emoji
+    themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
+  }
+
+  // Asignar el evento de clic
+  themeToggleBtn.addEventListener('click', toggleThemeVanilla);
+
+  // Aplicar el tema guardado en localStorage
+  applyInitialTheme();
+});
