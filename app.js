@@ -125,37 +125,46 @@ const app = Vue.createApp({
 
 });
 
+app.component('theme-toggle', {
+  // El 'data' de un componente SIEMPRE debe ser una función
+  data() {
+    return {
+      isDark: false
+    }
+  },
+  // La plantilla HTML que usará este componente
+  // Usamos backticks (`) para un string multi-línea
+  template: `
+    <button 
+      @click="toggleTheme"
+      class="bg-[var(--surface-color)] text-[var(--text-color)] border border-[var(--surface-color)] py-3 px-6 rounded-lg cursor-pointer font-medium transition-all duration-200 ease-in-out ml-4 hover:bg-[var(--brand-color)] hover:text-white">
+      {{ isDark ? '☀️' : '🌙' }}
+    </button>
+  `,
+  methods: {
+    toggleTheme() {
+      // 1. Cambiamos nuestro estado interno
+      this.isDark = !this.isDark;
+      
+      // 2. Guardamos en localStorage
+      localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+      
+      // 3. Aplicamos la clase al <div> raíz de la app
+      // Usamos document.querySelector('#app') o document.documentElement
+      document.getElementById('app').classList.toggle('dark', this.isDark);
+    }
+  },
+  // Esto se ejecuta cuando el componente se "monta"
+  mounted() {
+    // Leemos la preferencia guardada al cargar
+    this.isDark = localStorage.getItem('theme') === 'dark';
+    
+    // Aplicamos el tema inicial al <div> raíz
+    document.getElementById('app').classList.toggle('dark', this.isDark);
+  }
+});
+
 // 5. MONTAMOS LA APLICACIÓN
 // Le decimos a Vue que controle todo dentro del elemento con id="app"
 app.mount('#app');
 
-document.addEventListener('DOMContentLoaded', () => {
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
-  const appElement = document.getElementById('app'); // El div raíz
-
-  // Función para aplicar el tema (al cargar)
-  function applyInitialTheme() {
-    const isDark = localStorage.getItem('theme') === 'dark';
-    // Usamos toggle(clase, fuerza) para añadir o quitar la clase
-    appElement.classList.toggle('dark', isDark);
-    themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
-  }
-
-  // Función para cambiar el tema (al hacer clic)
-  function toggleThemeVanilla() {
-    // Alterna la clase y nos devuelve true si la clase 'dark' fue añadida
-    const isDark = appElement.classList.toggle('dark');
-    
-    // Guarda la preferencia
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    
-    // Actualiza el emoji
-    themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
-  }
-
-  // Asignar el evento de clic
-  themeToggleBtn.addEventListener('click', toggleThemeVanilla);
-
-  // Aplicar el tema guardado en localStorage
-  applyInitialTheme();
-});
