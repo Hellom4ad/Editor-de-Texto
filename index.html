@@ -25,11 +25,11 @@
 <body>
 
   <div id="app" 
-       class="font-['Poppins'] p-8 bg-[var(--base-color)] text-[var(--text-color)] transition-colors duration-200 min-h-screen">
+       class="font-['Poppins'] p-4 md:p-8 bg-[var(--base-color)] text-[var(--text-color)] transition-colors duration-200 min-h-screen">
 
-    <header class="flex justify-between items-center mb-8">
-      <h1 class="mb-4 text-4xl font-bold">Notas Rapidas</h1>
-      <div>
+    <header class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-6 md:gap-0">
+      <h1 class="text-3xl md:text-4xl font-bold">Notas Rapidas</h1>
+      <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
         <button 
           @click="openNoteDialog()"
           class="bg-[var(--brand-color)] text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 ease-in-out hover:bg-[#7a7fff]">
@@ -39,9 +39,9 @@
       </div>
     </header>
 
-    <main id="notesContainer" class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
+    <main id="notesContainer" class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 md:gap-6">
       
-      <div v-if="notes.length === 0" class="text-center py-16 px-8 text-[var(--secondary-text-color)] col-span-full">
+      <div v-if="notes.length === 0" class="text-center py-8 px-4 md:py-16 md:px-8 text-[var(--secondary-text-color)] col-span-full">
         <h2 class="text-2xl mb-2 font-semibold">No Hay Notas</h2>
         <p class="text-base mb-8">Crea tu primer nota!</p>
         <button 
