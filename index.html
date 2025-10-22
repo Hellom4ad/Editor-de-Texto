@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quick Notes (Vue.js)</title>
+  <title>Quick Notes (Vue + Tailwind)</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,14 +11,15 @@
   
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  
   <link rel="stylesheet" href="style.css"> 
 </head>
 
-<body class="font-['Poppins'] m-8">
+<body>
 
   <div id="app" 
        :class="{ 'dark-theme': isDark }"
-       class="bg-[var(--base-color)] text-[var(--text-color)] transition-colors duration-200">
+       class="font-['Poppins'] p-8 bg-[var(--base-color)] text-[var(--text-color)] transition-colors duration-200 min-h-screen">
 
     <header class="flex justify-between items-center mb-8">
       <h1 class="mb-4 text-4xl font-bold">Quick Notes</h1>
