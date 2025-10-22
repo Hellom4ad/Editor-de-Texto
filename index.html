@@ -4,47 +4,53 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quick Notes</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="app.js" defer></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="style.css"> 
 </head>
-<body>
+<body class="font-['Poppins'] m-8 bg-[var(--base-color)] text-[var(--text-color)] transition-colors duration-200">
 
-  <header>
-    <h1>Quick Notes</h1>
+  <header class="flex justify-between items-center mb-8">
+    <h1 class="mb-4 text-4xl font-bold">Quick Notes</h1>
     <div>
-      <button class="add-note-btn" onclick="openNoteDialog()">+ Add Note</button>
-      <button id="themeToggleBtn" class="theme-toggle-btn">🌙</button>
+      <button class="bg-[var(--brand-color)] text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 ease-in-out hover:bg-[#7a7fff]" onclick="openNoteDialog()">+ Add Note</button>
+      <button id="themeToggleBtn" class="bg-[var(--surface-color)] text-[var(--text-color)] border border-[var(--surface-color)] py-3 px-6 rounded-lg cursor-pointer font-medium transition-all duration-200 ease-in-out ml-4 hover:bg-[var(--brand-color)] hover:text-white">🌙</button>
     </div>
   </header>
 
-  <main id="notesContainer" class="notes-grid">
+  <main id="notesContainer" class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
+    </main>
 
-  </main>
-
-  <dialog id="noteDialog">
-    <div class="dialog-content">
-      <div class="dialog-header">
-        <h2 class="dialog-title" id="dialogTitle">Add New Note</h2>
-        <button class="close-btn" onclick="closeNoteDialog()">x</button>
+  <dialog id="noteDialog" class="m-auto inset-0 border-none rounded-2xl p-0 bg-[var(--surface-color)] text-[var(--text-color)] max-w-[500px] w-[90vw] backdrop:bg-black/10 backdrop:backdrop-blur-sm">
+    <div class="p-8">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold" id="dialogTitle">Add New Note</h2>
+        <button class="bg-transparent border-none text-2xl cursor-pointer text-[var(--secondary-text-color)] p-1 rounded transition-colors duration-200 ease-in-out hover:bg-[var(--base-color)]" onclick="closeNoteDialog()">x</button>
       </div>
 
       <form id="noteForm">
-        <div class="form-group">
-          <label for="noteTitle" class="form-label">Title</label>
-          <input type="text" id="noteTitle" class="form-input" placeholder="Enter note title..." required>
+        <div class="mb-6">
+          <label for="noteTitle" class="block mb-2 font-medium text-[var(--text-color)]">Title</label>
+          <input type="text" id="noteTitle" class="w-full p-3 border-2 border-[var(--surface-color)] rounded-lg text-base transition-colors duration-200 ease-in-out bg-[var(--base-color)] text-[var(--text-color)] focus:outline-none focus:border-[var(--brand-color)]" placeholder="Enter note title..." required>
         </div>
         
-        <div class="form-group">
-          <label for="noteContent" class="form-label">Content</label>
-          <textarea id="noteContent" class="form-textarea" placeholder="Write your note here..." required></textarea>
+        <div class="mb-6">
+          <label for="noteContent" class="block mb-2 font-medium text-[var(--text-color)]">Content</label>
+          <textarea id="noteContent" class="w-full p-3 border-2 border-[var(--surface-color)] rounded-lg text-base transition-colors duration-200 ease-in-out bg-[var(--base-color)] text-[var(--text-color)] focus:outline-none focus:border-[var(--brand-color)] resize-y min-h-[120px]" placeholder="Write your note here..." required></textarea>
         </div>
 
-        <div class="dialog-actions">
-          <button type="button" class="cancel-btn" onclick="closeNoteDialog()">Cancel</button>
-          <button type="submit" class="save-btn">Save Note</button>
+        <div class="flex gap-4 justify-end">
+          <button type="button" class="py-3 px-6 border-none rounded-lg cursor-pointer font-medium transition-all duration-200 ease-in-out bg-[var(--base-color)] text-[var(--text-color)]" onclick="closeNoteDialog()">Cancel</button>
+          <button type="submit" class="py-3 px-6 border-none rounded-lg cursor-pointer font-medium transition-all duration-200 ease-in-out bg-[var(--brand-color)] text-white hover:bg-[#7a7fff]">Save Note</button>
         </div>
       </form>
     </div>
   </dialog>
+  <script src="app.js" defer></script>
 </body>
 </html>
