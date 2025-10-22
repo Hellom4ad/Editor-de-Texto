@@ -1,147 +1,142 @@
-let notes = []
-let editingNoteId = null
+// app.js (Versión con Vue)
 
-function loadNotes() {
-  const savedNotes = localStorage.getItem('quickNotes')
-  return savedNotes ? JSON.parse(savedNotes) : []
-}
-
-function saveNote(event) {
-  event.preventDefault()
-
-  const title = document.getElementById('noteTitle').value.trim();
-  const content = document.getElementById('noteContent').value.trim();
-
-  if(editingNoteId) {
-    // Update existing Note
-
-    const noteIndex = notes.findIndex(note => note.id === editingNoteId)
-    notes[noteIndex] = {
-      ...notes[noteIndex],
-      title: title,
-      content: content
-    }
-
-  } else {
-    // Add New Note
-    notes.unshift({
-      id: generateId(),
-      title: title,
-      content: content
-    })
-  }
-
-  closeNoteDialog()
-  saveNotes()
-  renderNotes()
-}
-
-function generateId() {
-  return Date.now().toString()
-}
-
-function saveNotes() {
-  localStorage.setItem('quickNotes', JSON.stringify(notes))
-}
-
-function deleteNote(noteId) {
-  notes = notes.filter(note => note.id != noteId)
-  saveNotes()
-  renderNotes()
-}
-
-function renderNotes() {
-  const notesContainer = document.getElementById('notesContainer');
-
-  if(notes.length === 0) {
-    // show some fall back elements
-    notesContainer.innerHTML = `
-      <div class="text-center py-16 px-8 text-[var(--secondary-text-color)] col-span-full">
-        <h2 class="text-2xl mb-2 font-semibold">No notes yet</h2>
-        <p class="text-base mb-8">Create your first note to get started!</p>
-        <button class="bg-[var(--brand-color)] text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 ease-in-out hover:bg-[#7a7fff]" onclick="openNoteDialog()">+ Add Your First Note</button>
-      </div>
-    `
-    return
-  }
-
-  notesContainer.innerHTML = notes.map(note => `
-    <div class="group relative bg-[var(--surface-color)] rounded-xl p-6 border border-[var(--surface-color)] transition-all duration-200 ease-in-out hover:scale-[1.02] hover:shadow-[0_2px_15px_rgba(0,0,0,0.05)]">
-      
-      <div class="absolute top-4 right-4 flex gap-2 opacity-0 invisible transition-all duration-200 ease-in-out group-hover:opacity-100 group-hover:visible">
-        <button class="w-8 h-8 rounded-md cursor-pointer flex items-center justify-center transition-all duration-200 ease-in-out backdrop-blur-[10px] bg-[var(--base-transparent-90)] text-[var(--text-color)] border border-[var(--surface-color)] hover:bg-[var(--base-transparent-100)] hover:scale-105" onclick="openNoteDialog('${note.id}')" title="Edit Note">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-          </svg>
-        </button>
-        <button class="w-8 h-8 rounded-md cursor-pointer flex items-center justify-center transition-all duration-200 ease-in-out backdrop-blur-[10px] bg-[var(--base-transparent-90)] text-[var(--text-color)] border border-[var(--surface-color)] hover:bg-[#ff5252] hover:scale-105 hover:text-white" onclick="deleteNote('${note.id}')" title="Delete Note">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18.3 5.71c-.39-.39-1.02-.39-1.41 0L12 10.59 7.11 5.7c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.88c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"/>
-          </svg>
-        </button>
-      </div>
-
-      <h3 class="text-xl font-semibold mb-3 text-[var(--text-color)] break-words">${note.title}</h3>
-      <p class="text-[var(--secondary-text-color)] leading-relaxed mb-4 break-words whitespace-pre-wrap">${note.content}</p>
-
-    </div>
-    `).join('')
-  }
+// 1. CREAMOS LA APLICACIÓN VUE
+const app = Vue.createApp({
   
-function openNoteDialog(noteId = null) {
-  const dialog = document.getElementById('noteDialog');
-  const titleInput = document.getElementById('noteTitle');
-  const contentInput = document.getElementById('noteContent');
-
-  if(noteId) {
-    // Edit Mode
-    const noteToEdit = notes.find(note => note.id === noteId)
-    editingNoteId = noteId
-    document.getElementById('dialogTitle').textContent = 'Edit Note'
-    titleInput.value = noteToEdit.title
-    contentInput.value = noteToEdit.content
-  }
-  else {
-    // Add Mode
-    editingNoteId = null
-    document.getElementById('dialogTitle').textContent = 'Add New Note'
-    titleInput.value = ''
-    contentInput.value = ''
-  }
-
-  dialog.showModal()
-  titleInput.focus()
-
-}
-
-function closeNoteDialog() {
-  document.getElementById('noteDialog').close()
-}
-
-function toggleTheme() {
-  const isDark = document.body.classList.toggle('dark-theme')
-  localStorage.setItem('theme', isDark ? 'dark' : 'light')
-  document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙'
-}
-
-function applyStoredTheme() {
-  if(localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark-theme')
-    document.getElementById('themeToggleBtn').textContent = '☀️'
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  applyStoredTheme()
-  notes = loadNotes()
-  renderNotes()
-
-  document.getElementById('noteForm').addEventListener('submit', saveNote)
-  document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme)
-
-  document.getElementById('noteDialog').addEventListener('click', function(event) {
-    if(event.target === this) {
-      closeNoteDialog()
+  // 2. DATA (EL "ESTADO")
+  // Reemplaza tus variables globales (let notes = [], let editingNoteId = null)
+  data() {
+    return {
+      notes: [],
+      editingNoteId: null,
+      isDark: false,
+      
+      // Estado para el formulario (reemplaza a document.getElementById('...').value)
+      formTitle: '',
+      formContent: ''
     }
-  })
-})
+  },
+
+  // 3. METHODS (LAS "ACCIONES")
+  // Reemplaza tus funciones globales (saveNote(), deleteNote(), etc.)
+  methods: {
+    // --- Lógica de Notas ---
+    
+    saveNote() {
+      // No necesitamos event.preventDefault(), lo haremos en el HTML
+      
+      if (this.editingNoteId) {
+        // --- Actualizar Nota Existente ---
+        // Usamos 'this.' para acceder a los datos ('data') de Vue
+        const note = this.notes.find(n => n.id === this.editingNoteId);
+        note.title = this.formTitle;
+        note.content = this.formContent;
+
+      } else {
+        // --- Añadir Nueva Nota ---
+        this.notes.unshift({
+          id: Date.now().toString(),
+          title: this.formTitle,
+          content: this.formContent
+        });
+      }
+      
+      // ¡NO HAY RENDERNOTES()! Vue lo hace automáticamente.
+      this.saveNotesToLocalStorage();
+      this.closeNoteDialog();
+    },
+
+    deleteNote(noteId) {
+      // Simplemente modificamos el array. Vue actualizará el HTML.
+      this.notes = this.notes.filter(note => note.id != noteId);
+      this.saveNotesToLocalStorage();
+    },
+
+    // --- Lógica del Diálogo (Modal) ---
+
+    openNoteDialog(noteId = null) {
+      const dialog = document.getElementById('noteDialog');
+      
+      if (noteId) {
+        // --- Modo Edición ---
+        const noteToEdit = this.notes.find(note => note.id === noteId);
+        this.editingNoteId = noteId;
+        
+        // Sincronizamos el estado del formulario con la nota
+        this.formTitle = noteToEdit.title;
+        this.formContent = noteToEdit.content;
+        
+        document.getElementById('dialogTitle').textContent = 'Edit Note';
+      } 
+      else {
+        // --- Modo Añadir ---
+        this.editingNoteId = null;
+        
+        // Limpiamos el estado del formulario
+        this.formTitle = '';
+        this.formContent = '';
+        
+        document.getElementById('dialogTitle').textContent = 'Add New Note';
+      }
+
+      dialog.showModal();
+      document.getElementById('noteTitle').focus();
+    },
+
+    closeNoteDialog() {
+      // Limpiamos el estado por si acaso
+      this.editingNoteId = null;
+      this.formTitle = '';
+      this.formContent = '';
+      
+      document.getElementById('noteDialog').close();
+    },
+
+    // --- Lógica de Almacenamiento (LocalStorage) ---
+
+    loadNotesFromLocalStorage() {
+      const savedNotes = localStorage.getItem('quickNotes');
+      // Devolvemos los datos para usarlos en 'mounted'
+      return savedNotes ? JSON.parse(savedNotes) : [];
+    },
+
+    saveNotesToLocalStorage() {
+      localStorage.setItem('quickNotes', JSON.stringify(this.notes));
+    },
+
+    // --- Lógica del Tema (Oscuro/Claro) ---
+
+    toggleTheme() {
+      // Solo cambiamos el estado. El HTML reaccionará.
+      this.isDark = !this.isDark;
+      localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+    },
+
+    applyStoredTheme() {
+      // Solo establecemos el estado inicial.
+      this.isDark = localStorage.getItem('theme') === 'dark';
+    }
+  },
+
+  // 4. LIFECYCLE HOOKS (ENGANCHES DE CICLO DE VIDA)
+  // Reemplaza a 'DOMContentLoaded'
+  mounted() {
+    // Esto se ejecuta cuando la app Vue está lista.
+    this.applyStoredTheme();
+    this.notes = this.loadNotesFromLocalStorage();
+    // ¡No se necesita 'renderNotes()'!
+    
+    // Asignamos los eventos del diálogo que no son de Vue
+    const dialog = document.getElementById('noteDialog');
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) {
+        this.closeNoteDialog();
+      }
+    });
+  }
+
+});
+
+// 5. MONTAMOS LA APLICACIÓN
+// Le decimos a Vue que controle todo dentro del elemento con id="app"
+app.mount('#app');
