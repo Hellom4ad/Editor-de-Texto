@@ -7,11 +7,6 @@ const app = Vue.createApp({
   data() {
     return {
       notes: [],
-      editingNoteId: null,
-      
-      // Estado para el formulario (reemplaza a document.getElementById('...').value)
-      formTitle: '',
-      formContent: ''
     }
   },
 
@@ -19,29 +14,27 @@ const app = Vue.createApp({
   methods: {
     // --- Lógica de Notas ---
     
-    saveNote() {
-      // No necesitamos event.preventDefault(), lo haremos en el HTML
-      
-      if (this.editingNoteId) {
-        // --- Actualizar Nota Existente ---
-        // Usamos 'this.' para acceder a los datos ('data') de Vue
-        const note = this.notes.find(n => n.id === this.editingNoteId);
-        note.title = this.formTitle;
-        note.content = this.formContent;
+    saveNote(noteData) { 
+  // 'noteData' es el objeto que recibimos del emit: 
+  // { id: '...', title: '...', content: '...' }
 
-      } else {
-        // --- Añadir Nueva Nota ---
-        this.notes.unshift({
-          id: Date.now().toString(),
-          title: this.formTitle,
-          content: this.formContent
-        });
-      }
-      
-      // ¡NO HAY RENDERNOTES()! Vue lo hace automáticamente.
-      this.saveNotesToLocalStorage();
-      this.closeNoteDialog();
-    },
+  if (noteData.id) {
+    // --- Actualizar Nota Existente ---
+    const note = this.notes.find(n => n.id === noteData.id);
+    note.title = noteData.title;
+    note.content = noteData.content;
+  } else {
+    // --- Añadir Nueva Nota ---
+    this.notes.unshift({
+      id: Date.now().toString(), // Generamos el ID aquí
+      title: noteData.title,
+      content: noteData.content
+    });
+  }
+
+  this.saveNotesToLocalStorage();
+  // ¡Ya no llamamos a closeNoteDialog()! El componente se cierra solo.
+},
 
     deleteNote(noteId) {
       // Simplemente modificamos el array. Vue actualizará el HTML.
@@ -51,43 +44,17 @@ const app = Vue.createApp({
 
     // --- Lógica del Diálogo (Modal) ---
 
-    openNoteDialog(noteId = null) {
-      const dialog = document.getElementById('noteDialog');
-      
-      if (noteId) {
-        // --- Modo Edición ---
-        const noteToEdit = this.notes.find(note => note.id === noteId);
-        this.editingNoteId = noteId;
-        
-        // Sincronizamos el estado del formulario con la nota
-        this.formTitle = noteToEdit.title;
-        this.formContent = noteToEdit.content;
-        
-        document.getElementById('dialogTitle').textContent = 'Edit Note';
-      } 
-      else {
-        // --- Modo Añadir ---
-        this.editingNoteId = null;
-        
-        // Limpiamos el estado del formulario
-        this.formTitle = '';
-        this.formContent = '';
-        
-        document.getElementById('dialogTitle').textContent = 'Add New Note';
-      }
-
-      dialog.showModal();
-      document.getElementById('noteTitle').focus();
-    },
-
-    closeNoteDialog() {
-      // Limpiamos el estado por si acaso
-      this.editingNoteId = null;
-      this.formTitle = '';
-      this.formContent = '';
-      
-      document.getElementById('noteDialog').close();
-    },
+  openNoteDialog(noteId = null) {
+  if (noteId) {
+    // Buscamos la nota para pasarla al componente
+    const noteToEdit = this.notes.find(note => note.id === noteId);
+    // Usamos $refs para "llamar" al método 'open' del HIJO
+    this.$refs.noteDialogComponent.open(noteToEdit);
+  } else {
+    // Llamamos a 'open' sin argumentos para una nota nueva
+    this.$refs.noteDialogComponent.open(null);
+  }
+},
 
     // --- Lógica de Almacenamiento (LocalStorage) ---
 
@@ -211,6 +178,146 @@ app.component('note-card', {
 
     </div>
   `
+});
+
+// 2.3. REGISTRAMOS NUESTRO COMPONENTE DE DIÁLOGO
+app.component('note-dialog', {
+  
+  // A. Emits: ¿Qué mensajes puede enviar al padre?
+  // Solo necesita enviar un mensaje: "aquí están los datos para guardar".
+  emits: ['save-note'],
+
+  // B. Data: El estado interno del componente
+  // Este es el estado que MOVEMOS desde el 'data' de la app raíz.
+  data() {
+    return {
+      formTitle: '',
+      formContent: '',
+      editingNoteId: null,
+      dialogTitle: 'Add New Note',
+      dialogElement: null // Para guardar la referencia al <dialog>
+    }
+  },
+
+  // C. Template: El HTML que MOVEMOS desde index.html
+  // ¡Fíjate en los cambios!
+  // - Ya no hay 'id="noteDialog"'
+  // - Los @click ahora llaman a métodos locales (ej: 'close')
+  // - El @submit llama a 'handleSave'
+  // - Los v-model usan el 'data' de este componente
+  template: `
+    <dialog class="m-auto inset-0 border-none rounded-2xl p-0 bg-[var(--surface-color)] text-[var(--text-color)] max-w-[500px] w-[90vw] backdrop:bg-black/10 backdrop:backdrop-blur-sm">
+      <div class="p-8">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-semibold">{{ dialogTitle }}</h2>
+          <button 
+            @click="close"
+            class="bg-transparent border-none text-2xl cursor-pointer text-[var(--secondary-text-color)] p-1 rounded transition-colors duration-200 ease-in-out hover:bg-[var(--base-color)]">x</button>
+        </div>
+
+        <form @submit.prevent="handleSave">
+          <div class="mb-6">
+            <label for="noteTitle" class="block mb-2 font-medium text-[var(--text-color)]">Título</label>
+            <input 
+              type="text" 
+              id="noteTitle" 
+              v-model="formTitle" 
+              class="w-full p-3 border-2 border-[var(--surface-color)] rounded-lg text-base transition-colors duration-200 ease-in-out bg-[var(--base-color)] text-[var(--text-color)] focus:outline-none focus:border-[var(--brand-color)]" 
+              placeholder="Ingresa el título acá..." required>
+          </div>
+          
+          <div class="mb-6">
+            <label for="noteContent" class="block mb-2 font-medium text-[var(--text-color)]">Contenido</label>
+            <textarea 
+              id="noteContent" 
+              v-model="formContent" 
+              class="w-full p-3 border-2 border-[var(--surface-color)] rounded-lg text-base transition-colors duration-200 ease-in-out bg-[var(--base-color)] text-[var(--text-color)] focus:outline-none focus:border-[var(--brand-color)] resize-y min-h-[120px]" 
+              placeholder="Escribí tu nota acá..." required></textarea>
+          </div>
+
+          <div class="flex gap-4 justify-end">
+            <button 
+              type="button" 
+              @click="close"
+              class="py-3 px-6 border-none rounded-lg cursor-pointer font-medium transition-all duration-200 ease-in-out bg-[var(--base-color)] text-[var(--text-color)]">
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              class="py-3 px-6 border-none rounded-lg cursor-pointer font-medium transition-all duration-200 ease-in-out bg-[var(--brand-color)] text-white hover:bg-[#7a7fff]">
+              Guardar Nota
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+  `,
+
+  // D. Methods: La lógica que MOVEMOS y adaptamos
+  methods: {
+    // Esta es la función que el PADRE llamará para abrir el diálogo
+    open(noteToEdit = null) {
+      if (noteToEdit) {
+        // --- Modo Edición ---
+        this.editingNoteId = noteToEdit.id;
+        this.formTitle = noteToEdit.title;
+        this.formContent = noteToEdit.content;
+        this.dialogTitle = 'Edit Note';
+      } else {
+        // --- Modo Añadir ---
+        this.editingNoteId = null;
+        this.formTitle = '';
+        this.formContent = '';
+        this.dialogTitle = 'Add New Note';
+      }
+      
+      // Abrimos el diálogo
+      this.dialogElement.showModal();
+      // Usamos $nextTick para asegurar que el input esté visible antes de hacerle focus
+      this.$nextTick(() => {
+        document.getElementById('noteTitle').focus();
+      });
+    },
+
+    // El componente se cierra a sí mismo
+    close() {
+      this.dialogElement.close();
+      // Limpiamos el estado al cerrar
+      this.editingNoteId = null;
+      this.formTitle = '';
+      this.formContent = '';
+    },
+
+    // Cuando el formulario se envía
+    handleSave() {
+      // 1. Preparamos el paquete de datos para el padre
+      const noteData = {
+        id: this.editingNoteId, // Será 'null' si es una nota nueva
+        title: this.formTitle,
+        content: this.formContent
+      };
+
+      // 2. Emitimos el evento con los datos
+      this.$emit('save-note', noteData);
+
+      // 3. Cerramos el diálogo
+      this.close();
+    }
+  },
+
+  // E. Mounted: Para configurar la lógica del DOM
+  mounted() {
+    // Guardamos el elemento <dialog> en nuestro 'data' para poder usar .showModal() y .close()
+    // this.$el se refiere al elemento raíz del 'template' (el <dialog>)
+    this.dialogElement = this.$el;
+
+    // Añadimos el listener para cerrar al hacer clic fuera (backdrop)
+    this.dialogElement.addEventListener('click', (event) => {
+      if (event.target === this.dialogElement) {
+        this.close();
+      }
+    });
+  }
 });
 
 // 5. MONTAMOS LA APLICACIÓN

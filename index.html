@@ -60,51 +60,10 @@
 ></note-card>
     </main>
 
-    <dialog id="noteDialog" class="m-auto inset-0 border-none rounded-2xl p-0 bg-[var(--surface-color)] text-[var(--text-color)] max-w-[500px] w-[90vw] backdrop:bg-black/10 backdrop:backdrop-blur-sm">
-      <div class="p-8">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-semibold" id="dialogTitle">Crear Nueva Nota</h2>
-          <button 
-            @click="closeNoteDialog"
-            class="bg-transparent border-none text-2xl cursor-pointer text-[var(--secondary-text-color)] p-1 rounded transition-colors duration-200 ease-in-out hover:bg-[var(--base-color)]">x</button>
-        </div>
-
-        <form id="noteForm" @submit.prevent="saveNote">
-          <div class="mb-6">
-            <label for="noteTitle" class="block mb-2 font-medium text-[var(--text-color)]">Título</label>
-            <input 
-              type="text" 
-              id="noteTitle" 
-              v-model="formTitle" 
-              class="w-full p-3 border-2 border-[var(--surface-color)] rounded-lg text-base transition-colors duration-200 ease-in-out bg-[var(--base-color)] text-[var(--text-color)] focus:outline-none focus:border-[var(--brand-color)]" 
-              placeholder="Ingresa el título acá..." required>
-          </div>
-          
-          <div class="mb-6">
-            <label for="noteContent" class="block mb-2 font-medium text-[var(--text-color)]">Contenido</label>
-            <textarea 
-              id="noteContent" 
-              v-model="formContent" 
-              class="w-full p-3 border-2 border-[var(--surface-color)] rounded-lg text-base transition-colors duration-200 ease-in-out bg-[var(--base-color)] text-[var(--text-color)] focus:outline-none focus:border-[var(--brand-color)] resize-y min-h-[120px]" 
-              placeholder="Escribí tu nota acá..." required></textarea>
-          </div>
-
-          <div class="flex gap-4 justify-end">
-            <button 
-              type="button" 
-              @click="closeNoteDialog"
-              class="py-3 px-6 border-none rounded-lg cursor-pointer font-medium transition-all duration-200 ease-in-out bg-[var(--base-color)] text-[var(--text-color)]">
-              Cancelar
-            </button>
-            <button 
-              type="submit" 
-              class="py-3 px-6 border-none rounded-lg cursor-pointer font-medium transition-all duration-200 ease-in-out bg-[var(--brand-color)] text-white hover:bg-[#7a7fff]">
-              Guardar Nota
-            </button>
-          </div>
-        </form>
-      </div>
-    </dialog>
+ <note-dialog 
+      ref="noteDialogComponent"
+      @save-note="saveNote"
+    ></note-dialog>
 
   </div> <script src="app.js"></script>
 </body>
