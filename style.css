@@ -11,7 +11,7 @@
   --base-transparent-100: rgba(247, 247, 247, 1);
 }
 
-.dark-theme {
+.dark {
   --brand-color: #8b90ff;
   --base-color: #1e1f26;
   --surface-color: #2c2f38;
